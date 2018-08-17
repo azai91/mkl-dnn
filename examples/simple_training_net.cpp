@@ -296,14 +296,14 @@ void simple_net()
             = lrn_backward::primitive_desc(lrn_bwd_desc, cpu_engine, lrn_pd);
 
     /* create memory for lrn diff src */
-    auto lrn_diff_src_memory = memory(lrn_bwd_pd.diff_src_primitive_desc());
+    auto lrn_diff_src_memory_tmp = memory(lrn_bwd_pd.diff_src_primitive_desc());
 
     memory::dims lrn_src_tz = { 32, 96, 55, 55 };
 
-    auto lrn_diff_src_memory2 = memory(
-      { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
+    auto lrn_diff_src_memory = memory(
+      { { { lrn_src_tz }, memory::data_type::f32, memory::format::nChw8c },
         cpu_engine },
-      lrn_diff_src_memory.get_data_handle());
+      lrn_diff_src_memory_tmp.get_data_handle());
 
 
   /* finally create a lrn backward primitive */
