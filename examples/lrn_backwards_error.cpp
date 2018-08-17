@@ -64,7 +64,7 @@ void simple_net()
     auto lrn = lrn_forward(lrn_pd, lrn_src_mem, lrn_workspace_memory,
                            lrn_dst_memory);
 
-    memory::dims lrn_diff_dst_tz = { 32, 96, 55, 55 };
+    memory::dims lrn_diff_dst_tz = { 32, 8, 54, 54};
     auto lrn_diff_dst_md = memory(
       { { { lrn_diff_dst_tz}, memory::data_type::f32, memory::format::nchw },
         cpu_engine },
