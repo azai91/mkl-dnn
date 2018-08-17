@@ -44,6 +44,8 @@ void simple_net()
     memory::dims lrn_src_tz = { batch, 8, 54, 54};
 
 
+
+  /* out_grad is default and in_grad is default */
     auto lrn_src_mem = memory(
             { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
               cpu_engine },
@@ -70,8 +72,6 @@ void simple_net()
         cpu_engine },
       net_out_grad.data());
 
-
-    /* out_grad is default and in_grad is default */
     auto lrn_bwd_desc = lrn_backward::desc(
             lrn_across_channels, lrn_pd.src_primitive_desc().desc(),
             lrn_diff_dst_md.get_primitive_desc().desc(), local_size, alpha, beta, k);
@@ -82,7 +82,7 @@ void simple_net()
     auto lrn_diff_src_memory = memory(
       { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
         cpu_engine },
-      net_in_grad_custom.data());
+      net_in_grad.data());
 
     auto lrn_diff_out_mem = memory(
       { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
@@ -95,13 +95,38 @@ void simple_net()
 
 
   /* out_grad is default and in_grad is custom */
+  auto lrn_src_mem_custom = memory(
+      { { { lrn_src_tz }, memory::data_type::f32, memory::format::nChw8c },
+        cpu_engine },
+      net_src.data());
+
+  auto lrn_desc_custom = lrn_forward::desc(prop_kind::forward, lrn_across_channels,
+                                           lrn_src_mem_custom.get_primitive_desc().desc(),
+                                    local_size, alpha, beta, k);
+  auto lrn_pd_custom = lrn_forward::primitive_desc(lrn_desc_custom, cpu_engine);
+
+  auto lrn_dst_memory_custom = memory(lrn_pd_custom.dst_primitive_desc());
+  auto lrn_workspace_memory_custom = memory(lrn_pd_custom.workspace_primitive_desc());
+  auto lrn_custom = lrn_forward(lrn_pd_custom, lrn_src_mem_custom, lrn_workspace_memory_custom,
+                                lrn_dst_memory_custom);
+
+  auto lrn_diff_dst_md_custom = memory(
+      { { { lrn_diff_dst_tz}, memory::data_type::f32, memory::format::nchw },
+        cpu_engine },
+      net_out_grad.data());
+
+  auto lrn_bwd_desc_custom = lrn_backward::desc(
+      lrn_across_channels, lrn_pd_custom.src_primitive_desc().desc(),
+      lrn_diff_dst_md_custom.get_primitive_desc().desc(), local_size, alpha, beta, k);
+
+
   auto lrn_bwd_pd_custom
-      = lrn_backward::primitive_desc(lrn_bwd_desc, cpu_engine, lrn_pd);
+      = lrn_backward::primitive_desc(lrn_bwd_desc_custom, cpu_engine, lrn_pd_custom);
 
   auto lrn_diff_src_memory_custom = memory(
       { { { lrn_src_tz }, memory::data_type::f32, memory::format::nChw8c },
         cpu_engine },
-      net_in_grad.data());
+      net_in_grad_custom.data());
 
   auto lrn_diff_out_mem_custom = memory(
       { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
@@ -109,8 +134,8 @@ void simple_net()
       net_out_grad.data());
 
   auto lrn_bwd_custom
-      = lrn_backward(lrn_bwd_pd, lrn_src_mem, lrn_diff_out_mem_custom,
-                     lrn_workspace_memory, lrn_diff_src_memory_custom);
+      = lrn_backward(lrn_bwd_pd_custom, lrn_src_mem_custom, lrn_diff_out_mem_custom,
+                     lrn_workspace_memory_custom, lrn_diff_src_memory_custom);
 
     std::vector<primitive> net_bwd;
     net_bwd.push_back(lrn_bwd);
