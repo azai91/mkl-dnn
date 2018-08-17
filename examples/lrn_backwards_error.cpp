@@ -95,10 +95,6 @@ void simple_net()
 
 
   /* out_grad is default and in_grad is custom */
-  auto lrn_bwd_desc_custom = lrn_backward::desc(
-      lrn_across_channels, lrn_pd.src_primitive_desc().desc(),
-      lrn_diff_dst_md.get_primitive_desc().desc(), local_size, alpha, beta, k);
-
   auto lrn_bwd_pd_custom
       = lrn_backward::primitive_desc(lrn_bwd_desc, cpu_engine, lrn_pd);
 
@@ -113,8 +109,8 @@ void simple_net()
       net_out_grad.data());
 
   auto lrn_bwd_custom
-      = lrn_backward(lrn_bwd_pd, lrn_src_mem, lrn_diff_out_mem,
-                     lrn_workspace_memory, lrn_diff_src_memory);
+      = lrn_backward(lrn_bwd_pd, lrn_src_mem, lrn_diff_out_mem_custom,
+                     lrn_workspace_memory, lrn_diff_src_memory_custom);
 
     std::vector<primitive> net_bwd;
     net_bwd.push_back(lrn_bwd);
