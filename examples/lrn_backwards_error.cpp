@@ -82,7 +82,7 @@ void simple_net()
     auto lrn_diff_src_memory = memory(
       { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
         cpu_engine },
-      net_in_grad.data());
+      net_in_grad_custom.data());
 
     auto lrn_diff_out_mem = memory(
       { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
