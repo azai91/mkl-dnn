@@ -280,7 +280,7 @@ void simple_net()
                                pool_workspace_memory, pool_diff_src_memory);
 
     /* Backward lrn */
-    auto lrn_diff_dst_md_tmp = lrn_dst_memory.get_primitive_desc().desc();
+//    auto lrn_diff_dst_md_tmp = lrn_dst_memory.get_primitive_desc().desc();
 
     memory::dims lrn_diff_dst_tz = { 32, 96, 55, 55 };
     auto lrn_diff_dst_md1 = memory(
