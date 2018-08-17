@@ -31,6 +31,7 @@ void simple_net()
     std::vector<float> net_src(batch * 8 * 54 * 54);
     std::vector<float> net_out_grad(batch * 8 * 54 * 54);
     std::vector<float> net_in_grad(batch * 8 * 54 * 54);
+    std::vector<float> net_in_grad_custom(batch * 8 * 54 * 54);
 
     /* initializing non-zero values for src */
     for (size_t i = 0; i < net_src.size(); ++i)
@@ -64,36 +65,60 @@ void simple_net()
                            lrn_dst_memory);
 
     memory::dims lrn_diff_dst_tz = { 32, 96, 55, 55 };
-    auto lrn_diff_dst_md1 = memory(
+    auto lrn_diff_dst_md = memory(
       { { { lrn_diff_dst_tz}, memory::data_type::f32, memory::format::nchw },
         cpu_engine },
       net_out_grad.data());
 
-    /* create backward lrn primitive descriptor */
+
+    /* out_grad is default and in_grad is default */
     auto lrn_bwd_desc = lrn_backward::desc(
             lrn_across_channels, lrn_pd.src_primitive_desc().desc(),
-            lrn_diff_dst_md1.get_primitive_desc().desc(), local_size, alpha, beta, k);
+            lrn_diff_dst_md.get_primitive_desc().desc(), local_size, alpha, beta, k);
+
     auto lrn_bwd_pd
             = lrn_backward::primitive_desc(lrn_bwd_desc, cpu_engine, lrn_pd);
 
-    auto lrn_diff_src_memory_tmp = memory(lrn_bwd_pd.diff_src_primitive_desc());
-
     auto lrn_diff_src_memory = memory(
-      { { { lrn_src_tz }, memory::data_type::f32, memory::format::nChw8c },
+      { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
         cpu_engine },
       net_in_grad.data());
 
     auto lrn_diff_out_mem = memory(
-      { { { lrn_src_tz }, memory::data_type::f32, memory::format::nChw8c },
+      { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
         cpu_engine },
-      lrn_diff_src_memory_tmp.get_data_handle());
+      net_out_grad.data());
 
-    auto lrn_bwd1
+    auto lrn_bwd
             = lrn_backward(lrn_bwd_pd, lrn_src_mem, lrn_diff_out_mem,
                            lrn_workspace_memory, lrn_diff_src_memory);
 
+
+  /* out_grad is default and in_grad is custom */
+  auto lrn_bwd_desc_custom = lrn_backward::desc(
+      lrn_across_channels, lrn_pd.src_primitive_desc().desc(),
+      lrn_diff_dst_md.get_primitive_desc().desc(), local_size, alpha, beta, k);
+
+  auto lrn_bwd_pd_custom
+      = lrn_backward::primitive_desc(lrn_bwd_desc, cpu_engine, lrn_pd);
+
+  auto lrn_diff_src_memory_custom = memory(
+      { { { lrn_src_tz }, memory::data_type::f32, memory::format::nChw8c },
+        cpu_engine },
+      net_in_grad.data());
+
+  auto lrn_diff_out_mem_custom = memory(
+      { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
+        cpu_engine },
+      net_out_grad.data());
+
+  auto lrn_bwd_custom
+      = lrn_backward(lrn_bwd_pd, lrn_src_mem, lrn_diff_out_mem,
+                     lrn_workspace_memory, lrn_diff_src_memory);
+
     std::vector<primitive> net_bwd;
-    net_bwd.push_back(lrn_bwd1);
+    net_bwd.push_back(lrn_bwd);
+    net_bwd.push_back(lrn_bwd_custom);
     int n_iter = 1; //number of iterations for training
     /* execute */
     while (n_iter) {
