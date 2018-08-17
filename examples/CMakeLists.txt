@@ -25,7 +25,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_EXAMPLE_CCXX_FLAGS}")
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-add_executable(simple-net-c simple_net.c)
+add_executable(simple-net-c simple_net.c lrn_backwards_error.cpp lrn_backwards_error.h)
 set_property(TARGET simple-net-c PROPERTY C_STANDARD 99)
 target_link_libraries(simple-net-c ${LIB_NAME})
 add_test(simple-net-c simple-net-c)
@@ -81,6 +81,20 @@ if(WIN32)
     configure_file(${CMAKE_SOURCE_DIR}/config_template.vcxproj.user
         simple-net-int8-cpp.vcxproj.user @ONLY)
     set_property(TEST simple-net-int8-cpp PROPERTY ENVIRONMENT "PATH=${CTESTCONFIG_PATH}")
+endif()
+
+add_executable(lrn-backwards-error lrn_backwards_error.cpp)
+set_property(TARGET lrn-backwards-error PROPERTY CXX_STANDARD 11)
+if(WIN32)
+    target_link_libraries(lrn-backwards-error ${LIB_NAME})
+else()
+    target_link_libraries(lrn-backwards-error ${LIB_NAME} m)
+endif()
+#add_test(simple-training-net-cpp simple-training-net-cpp)
+if(WIN32)
+    configure_file(${CMAKE_SOURCE_DIR}/config_template.vcxproj.user
+            simple-training-net-cpp.vcxproj.user @ONLY)
+    set_property(TEST simple-training-net-cpp PROPERTY ENVIRONMENT "PATH=${CTESTCONFIG_PATH}")
 endif()
 
 if (HAVE_MKL)
