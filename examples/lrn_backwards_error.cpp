@@ -35,7 +35,7 @@ void simple_net()
 
     /* initializing non-zero values for src */
     for (size_t i = 0; i < net_src.size(); ++i)
-        net_src[i] = (std::rand() % 100) - 50;
+      net_src[i] = (std::rand() % 100) - 50;
 
     /* initializing non-zero values for out_grad */
     for (size_t i = 0; i < net_src.size(); ++i)
@@ -43,10 +43,10 @@ void simple_net()
 
     memory::dims lrn_src_tz = { 10, 96, 54, 54 };
 
-    const uint32_t local_size = 5;
+    const uint32_t local_size = 3;
     const float alpha = 0.0001f;
     const float beta = 0.75f;
-    const float k = 1.0f;
+    const float k = 2.0f;
 
 
     /* out_grad is default and in_grad is default */
