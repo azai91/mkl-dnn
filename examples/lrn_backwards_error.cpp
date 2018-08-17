@@ -157,8 +157,6 @@ void simple_net()
     }
 
   lrn_diff_src_memory.get_data_handle();
-
-    memcmp()
 }
 
 int main(int argc, char **argv)
