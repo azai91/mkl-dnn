@@ -139,7 +139,7 @@ void simple_net()
         --n_iter;
     }
 
-
+  lrn_diff_src_memory.get_data_handle();
 }
 
 int main(int argc, char **argv)
