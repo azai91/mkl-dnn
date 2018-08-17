@@ -56,7 +56,7 @@ void simple_net()
     const float beta = 0.75f;
     const float k = 1.0f;
 
-    auto lrn_desc = lrn_forward::desc(prop_kind::forward, lrn_across_channels,
+    auto lrn_desc = lrn_forward::desc(prop_kind::forward_training, lrn_across_channels,
                                       lrn_src_mem.get_primitive_desc().desc(),
                                       local_size, alpha, beta, k);
     auto lrn_pd = lrn_forward::primitive_desc(lrn_desc, cpu_engine);
@@ -96,7 +96,7 @@ void simple_net()
         cpu_engine },
       net_src.data());
 
-  auto lrn_desc_custom = lrn_forward::desc(prop_kind::forward, lrn_across_channels,
+  auto lrn_desc_custom = lrn_forward::desc(prop_kind::forward_training, lrn_across_channels,
                                            lrn_src_mem_custom.get_primitive_desc().desc(),
                                     local_size, alpha, beta, k);
   auto lrn_pd_custom = lrn_forward::primitive_desc(lrn_desc_custom, cpu_engine);
