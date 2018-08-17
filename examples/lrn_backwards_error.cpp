@@ -26,12 +26,12 @@ void simple_net()
 {
     auto cpu_engine = engine(engine::cpu, 0);
 
-    const int batch = 32;
+    const int batch = 10;
 
-    std::vector<float> net_src(batch * 8 * 54 * 54);
-    std::vector<float> net_out_grad(batch * 8 * 54 * 54);
-    std::vector<float> net_in_grad(batch * 8 * 54 * 54);
-    std::vector<float> net_in_grad_custom(batch * 8 * 54 * 54);
+    std::vector<float> net_src(batch * 96 * 54 * 54);
+    std::vector<float> net_out_grad(batch * 96 * 54 * 54);
+    std::vector<float> net_in_grad(batch * 96 * 54 * 54);
+    std::vector<float> net_in_grad_custom(batch * 96 * 54 * 54);
 
     /* initializing non-zero values for src */
     for (size_t i = 0; i < net_src.size(); ++i)
@@ -41,7 +41,7 @@ void simple_net()
     for (size_t i = 0; i < net_src.size(); ++i)
       net_out_grad[i] = sinf((float)i);
 
-    memory::dims lrn_src_tz = { batch, 8, 54, 54};
+    memory::dims lrn_src_tz = { 10, 96, 54, 54 };
 
 
 
@@ -157,6 +157,8 @@ void simple_net()
     }
 
   lrn_diff_src_memory.get_data_handle();
+
+    memcmp()
 }
 
 int main(int argc, char **argv)
