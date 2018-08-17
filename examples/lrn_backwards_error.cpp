@@ -67,14 +67,15 @@ void simple_net()
                            lrn_dst_memory);
 
     memory::dims lrn_diff_dst_tz = { 32, 8, 54, 54};
-    auto lrn_diff_dst_md = memory(
-      { { { lrn_diff_dst_tz}, memory::data_type::f32, memory::format::nchw },
+
+    auto lrn_diff_out_mem = memory(
+      { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
         cpu_engine },
       net_out_grad.data());
 
     auto lrn_bwd_desc = lrn_backward::desc(
             lrn_across_channels, lrn_pd.src_primitive_desc().desc(),
-            lrn_diff_dst_md.get_primitive_desc().desc(), local_size, alpha, beta, k);
+            lrn_diff_out_mem.get_primitive_desc().desc(), local_size, alpha, beta, k);
 
     auto lrn_bwd_pd
             = lrn_backward::primitive_desc(lrn_bwd_desc, cpu_engine, lrn_pd);
@@ -83,11 +84,6 @@ void simple_net()
       { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
         cpu_engine },
       net_in_grad.data());
-
-    auto lrn_diff_out_mem = memory(
-      { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
-        cpu_engine },
-      net_out_grad.data());
 
     auto lrn_bwd
             = lrn_backward(lrn_bwd_pd, lrn_src_mem, lrn_diff_out_mem,
@@ -110,14 +106,15 @@ void simple_net()
   auto lrn_custom = lrn_forward(lrn_pd_custom, lrn_src_mem_custom, lrn_workspace_memory_custom,
                                 lrn_dst_memory_custom);
 
-  auto lrn_diff_dst_md_custom = memory(
-      { { { lrn_diff_dst_tz}, memory::data_type::f32, memory::format::nchw },
+
+  auto lrn_diff_out_mem_custom = memory(
+      { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
         cpu_engine },
       net_out_grad.data());
 
   auto lrn_bwd_desc_custom = lrn_backward::desc(
       lrn_across_channels, lrn_pd_custom.src_primitive_desc().desc(),
-      lrn_diff_dst_md_custom.get_primitive_desc().desc(), local_size, alpha, beta, k);
+      lrn_diff_out_mem_custom.get_primitive_desc().desc(), local_size, alpha, beta, k);
 
 
   auto lrn_bwd_pd_custom
@@ -127,11 +124,6 @@ void simple_net()
       { { { lrn_src_tz }, memory::data_type::f32, memory::format::nChw8c },
         cpu_engine },
       net_in_grad_custom.data());
-
-  auto lrn_diff_out_mem_custom = memory(
-      { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
-        cpu_engine },
-      net_out_grad.data());
 
   auto lrn_bwd_custom
       = lrn_backward(lrn_bwd_pd_custom, lrn_src_mem_custom, lrn_diff_out_mem_custom,
