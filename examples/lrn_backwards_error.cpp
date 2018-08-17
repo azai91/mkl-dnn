@@ -35,11 +35,11 @@ void simple_net()
 
     /* initializing non-zero values for src */
     for (size_t i = 0; i < net_src.size(); ++i)
-        net_src[i] = sinf((float)i);
+        net_src[i] = (std::rand() % 100) - 50;
 
     /* initializing non-zero values for out_grad */
     for (size_t i = 0; i < net_src.size(); ++i)
-      net_out_grad[i] = (std::rand() % 100) - 50;;
+      net_out_grad[i] = (std::rand() % 100) - 50;
 
     memory::dims lrn_src_tz = { 10, 96, 54, 54 };
 
