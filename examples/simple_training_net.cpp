@@ -290,9 +290,17 @@ void simple_net()
             = lrn_backward::primitive_desc(lrn_bwd_desc, cpu_engine, lrn_pd);
 
     /* create memory for lrn diff src */
-    auto lrn_diff_src_memory = memory(lrn_bwd_pd.diff_src_primitive_desc());
+    auto lrn_diff_src_memory_tmp = memory(lrn_bwd_pd.diff_src_primitive_desc());
 
-    /* finally create a lrn backward primitive */
+    memory::dims lrn_src_tz = { 32, 96, 55, 55 };
+
+    auto lrn_diff_src_memory = memory(
+      { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
+        cpu_engine },
+      lrn_diff_src_memory_tmp.get_data_handle());
+
+
+  /* finally create a lrn backward primitive */
     // backward lrn needs src: relu dst in this topology
     auto lrn_bwd
             = lrn_backward(lrn_bwd_pd, relu_dst_memory, pool_diff_src_memory,
