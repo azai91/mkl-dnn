@@ -280,24 +280,30 @@ void simple_net()
                                pool_workspace_memory, pool_diff_src_memory);
 
     /* Backward lrn */
-    auto lrn_diff_dst_md = lrn_dst_memory.get_primitive_desc().desc();
+    auto lrn_diff_dst_md_tmp = lrn_dst_memory.get_primitive_desc().desc();
+
+    memory::dims lrn_diff_dst_tz = { 32, 96, 55, 55 };
+    auto lrn_diff_dst_md1 = memory(
+      { { { lrn_diff_dst_tz}, memory::data_type::f32, memory::format::nchw },
+        cpu_engine },
+      lrn_dst_memory.get_data_handle());
 
     /* create backward lrn primitive descriptor */
     auto lrn_bwd_desc = lrn_backward::desc(
             lrn_across_channels, lrn_pd.src_primitive_desc().desc(),
-            lrn_diff_dst_md, local_size, alpha, beta, k);
+            lrn_diff_dst_md1.get_primitive_desc().desc(), local_size, alpha, beta, k);
     auto lrn_bwd_pd
             = lrn_backward::primitive_desc(lrn_bwd_desc, cpu_engine, lrn_pd);
 
     /* create memory for lrn diff src */
-    auto lrn_diff_src_memory_tmp = memory(lrn_bwd_pd.diff_src_primitive_desc());
+    auto lrn_diff_src_memory = memory(lrn_bwd_pd.diff_src_primitive_desc());
 
     memory::dims lrn_src_tz = { 32, 96, 55, 55 };
 
-    auto lrn_diff_src_memory = memory(
+    auto lrn_diff_src_memory2 = memory(
       { { { lrn_src_tz }, memory::data_type::f32, memory::format::nchw },
         cpu_engine },
-      lrn_diff_src_memory_tmp.get_data_handle());
+      lrn_diff_src_memory.get_data_handle());
 
 
   /* finally create a lrn backward primitive */
